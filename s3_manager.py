@@ -6,6 +6,15 @@ import requests
 
 class s3_manager:
 
+    def count_objects_in_bucket(self, bucket_name):
+        s3 = boto3.resource('s3')
+        bucket = s3.Bucket(bucket_name)
+
+        count_obj = 0
+        for i in bucket.objects.all():
+            count_obj = count_obj + 1
+
+
     def check_file_exist(self, bucket, key):
         s3_service = boto3.resource(service_name='s3')
         try:
@@ -23,22 +32,18 @@ class s3_manager:
         s3_image_filename = file_name
         internet_image_url = url
 
-        # Do this as a quick and easy check to make sure your S3 access is OK
         for bucket in s3.buckets.all():
             if bucket.name == bucket_name_to_upload_image_to:
-                print('Bucket found, uploading image...')
+                print('Uploading image: {}...'.format(file_name))
                 good_to_go = True
 
         if not good_to_go:
             print('Bucket not found, check IAM permission')
 
-        # Given an Internet-accessible URL, download the image and upload it to S3,
-        # without needing to persist the image to disk locally
         req_for_image = requests.get(internet_image_url, stream=True)
         file_object_from_req = req_for_image.raw
         req_data = file_object_from_req.read()
 
-        # Do the actual upload to s3
         s3.Bucket(bucket_name_to_upload_image_to).put_object(
             Key=s3_image_filename, Body=req_data)
 

@@ -1,6 +1,5 @@
 import boto3
-from botocore.exceptions import ClientError
-
+import json
 
 class dynamo_db:
 
@@ -14,8 +13,14 @@ class dynamo_db:
     def load_music_data(self, json_file):
         table = self.dynamodb.Table('music')
         print("Loading music data...")
-        for item in json_file['songs']:
-            table.put_item(Item=item)
+
+        with open(json_file) as json_data:
+            music_data = json.load(json_data)
+
+            for item in music_data['songs']:
+                table.put_item(Item=item)
+        
+        print("Music data loaded...")
 
     def table_exist(self, table_name):
         tables = self.client.list_tables()['TableNames']
