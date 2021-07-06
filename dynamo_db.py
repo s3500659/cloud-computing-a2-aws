@@ -1,11 +1,25 @@
 import boto3
 import json
 
+
 class dynamo_db:
 
     def __init__(self):
         self.dynamodb = boto3.resource('dynamodb')
         self.client = boto3.client('dynamodb')
+
+    def get_user(self, user_email: str):
+        table = self.dynamodb.Table('login')
+
+        response = table.get_item(
+            Key={'email': user_email}
+        )
+        try:
+            item = response['Item']
+        except:
+            return None
+
+        return item
 
     def get_table(self, table_name):
         return self.dynamodb.Table(table_name)
@@ -19,7 +33,7 @@ class dynamo_db:
 
             for item in music_data['songs']:
                 table.put_item(Item=item)
-        
+
         print("Music data loaded...")
 
     def table_exist(self, table_name):
