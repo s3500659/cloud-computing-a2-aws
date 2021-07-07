@@ -6,9 +6,11 @@ import requests
 
 class s3_manager:
 
+    def __init__(self):
+        self.__s3_client = boto3.resource('s3', region_name = 'us-east-1')
+
     def count_objects_in_bucket(self, bucket_name):
-        s3 = boto3.resource('s3')
-        bucket = s3.Bucket(bucket_name)
+        bucket = self.__s3_client.Bucket(bucket_name)
 
         count_obj = 0
         for i in bucket.objects.all():
@@ -16,9 +18,8 @@ class s3_manager:
 
 
     def check_file_exist(self, bucket, key):
-        s3_service = boto3.resource(service_name='s3')
         try:
-            s3_service.Object(bucket, key).load()
+            self.__s3_client.Object(bucket, key).load()
         except ClientError as e:
             return int(e.response['Error']['Code']) != 404
         print("checking key {}".format(key))
@@ -26,13 +27,11 @@ class s3_manager:
 
 
     def upload_image_url_to_bucket(self, bucket_name, file_name, url):
-        s3 = boto3.resource('s3')
-
         bucket_name_to_upload_image_to = bucket_name
         s3_image_filename = file_name
         internet_image_url = url
 
-        for bucket in s3.buckets.all():
+        for bucket in self.__s3_client.buckets.all():
             if bucket.name == bucket_name_to_upload_image_to:
                 print('Uploading image: {}...'.format(file_name))
                 good_to_go = True
@@ -44,7 +43,7 @@ class s3_manager:
         file_object_from_req = req_for_image.raw
         req_data = file_object_from_req.read()
 
-        s3.Bucket(bucket_name_to_upload_image_to).put_object(
+        self.__s3_client.Bucket(bucket_name_to_upload_image_to).put_object(
             Key=s3_image_filename, Body=req_data)
 
 
@@ -63,12 +62,10 @@ class s3_manager:
         # Create bucket
         try:
             if region is None:
-                s3_client = boto3.client('s3')
-                s3_client.create_bucket(Bucket=bucket_name)
+                self.__s3_client.create_bucket(Bucket=bucket_name)
             else:
-                s3_client = boto3.client('s3', region_name=region)
                 location = {'LocationConstraint': region}
-                s3_client.create_bucket(Bucket=bucket_name,
+                self.__s3_client.create_bucket(Bucket=bucket_name,
                                         CreateBucketConfiguration=location)
         except ClientError as e:
             logging.error(e)

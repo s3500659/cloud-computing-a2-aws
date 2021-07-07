@@ -5,8 +5,8 @@ import json
 class dynamo_db:
 
     def __init__(self):
-        self.__dynamodb = boto3.resource('dynamodb')
-        self.__client = boto3.client('dynamodb')
+        self.__dynamodb = boto3.resource('dynamodb', region_name = 'us-east-1')
+        self.__client = boto3.client('dynamodb', region_name = 'us-east-1')
 
     def get_user(self, user_email: str):
         table = self.__dynamodb.Table('login')
