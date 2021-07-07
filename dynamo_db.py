@@ -5,11 +5,11 @@ import json
 class dynamo_db:
 
     def __init__(self):
-        self.dynamodb = boto3.resource('dynamodb')
-        self.client = boto3.client('dynamodb')
+        self.__dynamodb = boto3.resource('dynamodb')
+        self.__client = boto3.client('dynamodb')
 
     def get_user(self, user_email: str):
-        table = self.dynamodb.Table('login')
+        table = self.__dynamodb.Table('login')
 
         response = table.get_item(
             Key={'email': user_email}
@@ -22,10 +22,10 @@ class dynamo_db:
         return item
 
     def get_table(self, table_name):
-        return self.dynamodb.Table(table_name)
+        return self.__dynamodb.Table(table_name)
 
     def load_music_data(self, json_file):
-        table = self.dynamodb.Table('music')
+        table = self.__dynamodb.Table('music')
         print("Loading music data...")
 
         with open(json_file) as json_data:
@@ -37,7 +37,7 @@ class dynamo_db:
         print("Music data loaded...")
 
     def table_exist(self, table_name):
-        tables = self.client.list_tables()['TableNames']
+        tables = self.__client.list_tables()['TableNames']
         if table_name not in tables:
             return False
 
@@ -45,7 +45,7 @@ class dynamo_db:
 
     def create_music_table(self):
         print("Creating music table...")
-        table = self.dynamodb.create_table(
+        table = self.__dynamodb.create_table(
             TableName='music',
             KeySchema=[
                 {
