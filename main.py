@@ -1,5 +1,4 @@
 from flask import Flask, render_template, request, redirect, session, flash, url_for
-from flask.wrappers import Request
 from dynamo_db import dynamo_db
 from s3_manager import s3_manager
 import json
@@ -11,6 +10,8 @@ s3_client = s3_manager()
 
 
 def upload_artist_images(bucket_name):
+    print(f"Uploading images to bucket {bucket_name}...")
+
     with open('a2.json') as json_data:
         data = json.load(json_data)
         for item in data['songs']:
@@ -21,20 +22,20 @@ def upload_artist_images(bucket_name):
                                                  image_url)
 
 
-def initialise_s3_bucket():
-    s3_client.create_bucket('s3500659-artist-images')
+def initialise_artist_img_bucket(bucket_name):
+    s3_client.create_bucket(bucket_name)
 
-    if s3_client.count_objects_in_bucket('s3500659-artist-images') == 0:
-        upload_artist_images('s3500659-artist-images')
+    if s3_client.count_objects_in_bucket(bucket_name) == 0:
+        upload_artist_images(bucket_name)
 
 
 def initialise_music_table():
+    name = 'music'
     # create the music
-    if db_client.table_exist('music') == False:
-        db_client.create_music_table()
+    if db_client.table_exist(name) == False:
+        db_client.create_table(name, 'artist', 'S', 'title', 'S')
         # load music data
         db_client.load_music_data('a2.json')
-
 
 
 @app.route("/front_page")
@@ -42,9 +43,32 @@ def front_page():
     return "front page working"
 
 
-@app.route("/register")
+@app.route("/register", methods=['GET', 'POST'])
 def register():
-    return "register working"
+
+    if request.method == 'POST':
+        email = request.form['email'].casefold()
+        user_name = request.form['user_name']
+        pw = request.form['pw']
+
+        table_name = 'login'
+        attr = 'email'
+        user = db_client.scan_table(table_name, attr, email)
+
+        if db_client.get_user(email) != None:
+            flash('The email already exists!', 'error')
+            return redirect(url_for('register'))
+
+        db_client.create_user(email, user_name, pw)
+        logout()
+        flash('You have been logged out!', 'info')
+        return redirect('/')
+
+    return render_template('register.html')
+
+
+def logout():
+    session.pop('email', None)
 
 
 @app.route("/login", methods=['POST'])
@@ -60,8 +84,8 @@ def login():
     if user['email'] == email and user['password'] == pw:
         session['user_email'] = email
         return redirect(url_for('front_page'))
-    
-    
+
+
 @app.route("/")
 def main():
     return render_template('login.html')
@@ -69,7 +93,6 @@ def main():
 
 if __name__ == "__main__":
     initialise_music_table()
-    initialise_s3_bucket()
-    db_client.get_user("s35006590@student.rmit.edu.au")
+    initialise_artist_img_bucket('s3500659-artist-images')
 
-    app.run(host="127.0.0.1", port=8080, debug=True)
+    app.run(host="0.0.0.0", port=8080, debug=True)

@@ -1,12 +1,39 @@
 import boto3
 import json
+from boto3.dynamodb.conditions import Key, Attr
 
 
 class dynamo_db:
 
     def __init__(self):
-        self.__dynamodb = boto3.resource('dynamodb', region_name = 'us-east-1')
-        self.__client = boto3.client('dynamodb', region_name = 'us-east-1')
+        self.__dynamodb = boto3.resource('dynamodb', region_name='us-east-1')
+        self.__client = boto3.client('dynamodb', region_name='us-east-1')
+
+    def create_user(self, email, user_name, password):
+        table = self.__dynamodb.Table('login')
+
+        table.put_item(
+            Item={
+                'email': email,
+                'user_name': user_name,
+                'password': password
+            }
+        )
+        print("User created...")
+
+    def scan_table(self, table_name, attr, user_name):
+        table = self.__dynamodb.Table(table_name)
+
+        response = table.scan(
+            FilterExpression=Attr(attr).eq(user_name)
+        )
+        try:
+            items = response['Items']
+        except:
+            return None
+
+        print(items)
+        return items
 
     def get_user(self, user_email: str):
         table = self.__dynamodb.Table('login')
@@ -43,28 +70,28 @@ class dynamo_db:
 
         return True
 
-    def create_music_table(self):
-        print("Creating music table...")
+    def create_table(self, table_name, p_key, p_type, s_key, s_type):
+        print(f"Creating {table_name} table...")
         table = self.__dynamodb.create_table(
-            TableName='music',
+            TableName=table_name,
             KeySchema=[
                 {
-                    'AttributeName': 'title',
+                    'AttributeName': p_key,
                     'KeyType': 'HASH'
                 },
                 {
-                    'AttributeName': 'artist',
+                    'AttributeName': s_key,
                     'KeyType': 'RANGE'
                 }
             ],
             AttributeDefinitions=[
                 {
-                    'AttributeName': 'title',
-                    'AttributeType': 'S'
+                    'AttributeName': p_key,
+                    'AttributeType': p_type
                 },
                 {
-                    'AttributeName': 'artist',
-                    'AttributeType': 'S'
+                    'AttributeName': s_key,
+                    'AttributeType': s_type
                 }
             ],
             ProvisionedThroughput={
@@ -73,6 +100,4 @@ class dynamo_db:
             }
         )
         # Wait until the table exists.
-        table.meta.client.get_waiter('table_exists').wait(TableName='music')
-
-        return table
+        table.meta.client.get_waiter('table_exists').wait(TableName=table_name)

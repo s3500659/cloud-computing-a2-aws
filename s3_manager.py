@@ -58,7 +58,7 @@ class s3_manager:
             :param region: String region to create bucket in, e.g., 'us-west-2'
             :return: True if bucket created, else False
             """
-
+        
         # Create bucket
         try:
             if region is None:
@@ -70,4 +70,5 @@ class s3_manager:
         except ClientError as e:
             logging.error(e)
             return False
+
         return True
