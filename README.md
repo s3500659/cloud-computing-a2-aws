@@ -1,4 +1,5 @@
-# cloud-computing-a2-aws
+# Cloud Computing - A2
+
 
 ## How to run the unit test files.
 
