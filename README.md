@@ -15,8 +15,8 @@ export PYTHONPATH="${PYTHONPATH}:/path/to/your/project/"
 ```
 
 Go into the tests folder using the terminal
-`cd tests`
+```cd tests```
 
 run the test file. E.g.
-`python test_dynamo_db.py`
+```python test_dynamo_db.py```
 
