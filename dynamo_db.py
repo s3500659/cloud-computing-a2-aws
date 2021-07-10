@@ -9,6 +9,12 @@ class dynamo_db:
         self.__dynamodb = boto3.resource('dynamodb', region_name='us-east-1')
         self.__client = boto3.client('dynamodb', region_name='us-east-1')
 
+    def delete_user(self, email):
+        table = self.__dynamodb.Table('login')
+        table.delete_item(
+            Key={'email': email}
+        )
+
     def create_user(self, email, user_name, password):
         table = self.__dynamodb.Table('login')
 
@@ -19,7 +25,6 @@ class dynamo_db:
                 'password': password
             }
         )
-        print("User created...")
 
     def scan_table(self, table_name, attr, user_name):
         table = self.__dynamodb.Table(table_name)
@@ -32,7 +37,6 @@ class dynamo_db:
         except:
             return None
 
-        print(items)
         return items
 
     def get_user(self, user_email: str):

@@ -51,10 +51,6 @@ def register():
         user_name = request.form['user_name']
         pw = request.form['pw']
 
-        table_name = 'login'
-        attr = 'email'
-        user = db_client.scan_table(table_name, attr, email)
-
         if db_client.get_user(email) != None:
             flash('The email already exists!', 'error')
             return redirect(url_for('register'))
@@ -69,6 +65,13 @@ def register():
 
 def logout():
     session.pop('email', None)
+
+def initialise_users():
+    users = {
+        "email": ""
+    }
+
+
 
 
 @app.route("/login", methods=['POST'])
@@ -92,6 +95,7 @@ def main():
 
 
 if __name__ == "__main__":
+    initialise_users()
     initialise_music_table()
     initialise_artist_img_bucket('s3500659-artist-images')
 
