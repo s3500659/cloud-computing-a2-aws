@@ -1,13 +1,67 @@
 import boto3
 import json
-from boto3.dynamodb.conditions import Key, Attr
+from boto3.dynamodb.conditions import Attr
 
 
-class dynamo_db:
+class DynamoDbManager:
 
     def __init__(self):
         self.__dynamodb = boto3.resource('dynamodb', region_name='us-east-1')
         self.__client = boto3.client('dynamodb', region_name='us-east-1')
+
+        # self.__dynamodb = boto3.resource(
+        #     'dynamodb', region_name='us-east-1', endpoint_url='http://localhost:8000')
+        # self.__client = boto3.client(
+        #     'dynamodb', region_name='us-east-1', endpoint_url='http://localhost:8000')
+
+    def get_music_item(self, artist="", title="", year=""):
+        table = self.__dynamodb.Table('music')
+
+        # complete query
+        if artist != "" and title != "" and year != "":
+            response = table.scan(
+                FilterExpression=Attr('artist').eq(artist) & Attr(
+                    'title').eq(title) & Attr('year').eq(year)
+            )
+        # one attr missing
+        if artist == "" and title != "" and year != "":
+            response = table.scan(
+                FilterExpression=Attr('title')
+                .eq(title) & Attr('year').eq(year)
+            )
+        if artist != "" and title == "" and year != "":
+            response = table.scan(
+                FilterExpression=Attr(
+                    'artist').eq(artist) & Attr('year').eq(year)
+            )
+        if artist != "" and title != "" and year == "":
+            response = table.scan(
+                FilterExpression=Attr(
+                    'artist').eq(artist) & Attr('title').eq(title)
+            )
+        # two attr missing
+        if artist == "" and title == "" and year != "":
+            response = table.scan(
+                FilterExpression=Attr('year').eq(year)
+            )
+        if artist == "" and title != "" and year == "":
+            response = table.scan(
+                FilterExpression=Attr('title').eq(title)
+            )
+        if artist != "" and title == "" and year == "":
+            response = table.scan(
+                FilterExpression=Attr('artist').eq(artist)
+            )
+        # empty query
+        if artist == "" and title == "" and year == "":
+            response = table.scan(
+                FilterExpression=Attr('artist').eq(artist) & Attr(
+                    'title').eq(title) & Attr('year').eq(year)
+            )
+
+        items = response['Items']
+
+        return items
 
     def delete_user(self, email):
         table = self.__dynamodb.Table('login')
@@ -73,6 +127,30 @@ class dynamo_db:
             return False
 
         return True
+
+    def create_login_table(self):
+        table_name = 'login'
+        print(f"Creating {table_name} table...")
+        table = self.__dynamodb.create_table(
+            TableName=table_name,
+            KeySchema=[
+                {
+                    'AttributeName': 'email',
+                    'KeyType': 'HASH'
+                }
+            ],
+            AttributeDefinitions=[
+                {
+                    'AttributeName': 'email',
+                    'AttributeType': 'S'
+                }
+            ],
+            ProvisionedThroughput={
+                'ReadCapacityUnits': 5,
+                'WriteCapacityUnits': 5
+            }
+        )
+        table.meta.client.get_waiter('table_exists').wait(TableName=table_name)
 
     def create_table(self, table_name, p_key, p_type, s_key, s_type):
         print(f"Creating {table_name} table...")

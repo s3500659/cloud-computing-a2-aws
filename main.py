@@ -1,11 +1,11 @@
 from flask import Flask, render_template, request, redirect, session, flash, url_for
-from dynamo_db import dynamo_db
+from dynamo_db import DynamoDbManager
 from s3_manager import s3_manager
 import json
 
 app = Flask(__name__)
 app.secret_key = 'my secret key'
-db_client = dynamo_db()
+db_client = DynamoDbManager()
 s3_client = s3_manager()
 
 
@@ -38,9 +38,9 @@ def initialise_music_table():
         db_client.load_music_data('a2.json')
 
 
-@app.route("/front_page")
-def front_page():
-    return "front page working"
+@app.route("/main_page")
+def main_page():
+    return "main page working"
 
 
 @app.route("/register", methods=['GET', 'POST'])
@@ -66,10 +66,22 @@ def register():
 def logout():
     session.pop('email', None)
 
-def initialise_users():
-    users = {
-        "email": ""
-    }
+
+def initialise_login_table():
+    name = 'login'
+    if db_client.table_exist(name) == False:
+        db_client.create_login_table()
+        db_client.create_user("vinh", "Vinh Tran", "123")
+        db_client.create_user("s35006590@student.rmit.edu.au", "Vinh Tran0", "012345")
+        db_client.create_user("s35006591@student.rmit.edu.au", "Vinh Tran1", "123456")
+        db_client.create_user("s35006592@student.rmit.edu.au", "Vinh Tran2", "234567")
+        db_client.create_user("s35006593@student.rmit.edu.au", "Vinh Tran3", "345678")
+        db_client.create_user("s35006594@student.rmit.edu.au", "Vinh Tran4", "456789")
+        db_client.create_user("s35006595@student.rmit.edu.au", "Vinh Tran5", "567890")
+        db_client.create_user("s35006596@student.rmit.edu.au", "Vinh Tran6", "678901")
+        db_client.create_user("s35006597@student.rmit.edu.au", "Vinh Tran7", "789012")
+        db_client.create_user("s35006598@student.rmit.edu.au", "Vinh Tran8", "890123")
+        db_client.create_user("s35006599@student.rmit.edu.au", "Vinh Tran9", "901234")
 
 
 
@@ -78,15 +90,17 @@ def initialise_users():
 def login():
     email = request.form['email'].casefold()
     pw = request.form['pw']
+    
     user = db_client.get_user(email)
 
-    if user == None:
+    if user == None or user['password'] != pw:
         flash('Email or password is invalid!', 'error')
         return redirect(url_for('main'))
-
-    if user['email'] == email and user['password'] == pw:
+    else:
         session['user_email'] = email
-        return redirect(url_for('front_page'))
+        return redirect(url_for('main_page'))
+
+
 
 
 @app.route("/")
@@ -95,7 +109,7 @@ def main():
 
 
 if __name__ == "__main__":
-    initialise_users()
+    initialise_login_table()
     initialise_music_table()
     initialise_artist_img_bucket('s3500659-artist-images')
 
