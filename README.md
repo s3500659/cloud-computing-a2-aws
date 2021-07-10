@@ -2,10 +2,14 @@
 ## How to run the application.
 
 cd into the project folder.
-```cd C:\path\to\the\project\```
+```
+cd C:\path\to\the\project\
+```
 
 Run the app.
-```python main.py```
+```
+python main.py
+```
 
 
 ## How to run the unit test files.
@@ -23,8 +27,12 @@ export PYTHONPATH="${PYTHONPATH}:/path/to/the/project/"
 ```
 
 Go into the tests folder using the terminal
-```cd tests```
+```
+cd tests
+```
 
 run the test file. E.g.
-```python test_dynamo_db.py```
+```
+python test_dynamo_db.py
+```
 
