@@ -33,19 +33,29 @@ def initialise_music_table():
     name = 'music'
     # create the music
     if db_client.table_exist(name) == False:
-        db_client.create_table(name, 'artist', 'S', 'title', 'S')
+        db_client.create_table_double(name, 'artist', 'S', 'title', 'S')
         # load music data
         db_client.load_music_data('a2.json')
 
 
-@app.route("/main_page")
+@app.route("/<title>/remove_sub")
+def remove_sub(title):
+    db_client.delete_subscription(session['user_email'], title)
+    return redirect(url_for('main_page'))
+
+
+@app.route("/main_page", methods=['GET', 'POST'])
 def main_page():
-    return "main page working"
+    user = db_client.get_user(session['user_email'])
+    subs = db_client.get_subscriptions(user['email'])
+
+
+
+    return render_template('main_page.html', user=user, subs=subs)
 
 
 @app.route("/register", methods=['GET', 'POST'])
 def register():
-
     if request.method == 'POST':
         email = request.form['email'].casefold()
         user_name = request.form['user_name']

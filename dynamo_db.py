@@ -8,13 +8,63 @@ class DynamoDbManager:
     def __init__(self):
         self.__dynamodb = boto3.resource('dynamodb', region_name='us-east-1')
         self.__client = boto3.client('dynamodb', region_name='us-east-1')
+        self.MUSIC_SUB_TABLE = 'user_subscription'
 
         # self.__dynamodb = boto3.resource(
         #     'dynamodb', region_name='us-east-1', endpoint_url='http://localhost:8000')
         # self.__client = boto3.client(
         #     'dynamodb', region_name='us-east-1', endpoint_url='http://localhost:8000')
 
-    def get_music_item(self, artist="", title="", year=""):
+    def delete_subscription(self, email, title):
+        table = self.__dynamodb.Table(self.MUSIC_SUB_TABLE)
+
+        table.delete_item(
+            Key={
+                'email': email,
+                'title': title
+            }
+        )
+
+    def get_subscriptions(self, email):
+        table = self.__dynamodb.Table(self.MUSIC_SUB_TABLE)
+
+        response = table.scan(
+            FilterExpression=Attr('email').eq(email)
+        )
+
+        items = response['Items']
+
+        return items
+
+    def get_subscription(self, email, song):
+        table = self.__dynamodb.Table(self.MUSIC_SUB_TABLE)
+
+        response = table.scan(
+            FilterExpression=Attr('email').eq(
+                email) & Attr('title').eq(song['title'])
+        )
+
+        items = response['Items']
+
+        return items
+
+    def subscribe_music(self, user, song):
+        if self.table_exist(self.MUSIC_SUB_TABLE) == False:
+            self.create_table_double(
+                self.MUSIC_SUB_TABLE, 'email', 'S', 'title', 'S')
+
+        table = self.__dynamodb.Table(self.MUSIC_SUB_TABLE)
+
+        table.put_item(
+            Item={
+                'email': user['email'],
+                'title': song['title'],
+                'artist': song['artist'],
+                'year': song['year']
+            }
+        )
+
+    def query_music_item(self, artist="", title="", year=""):
         table = self.__dynamodb.Table('music')
 
         # complete query
@@ -152,7 +202,31 @@ class DynamoDbManager:
         )
         table.meta.client.get_waiter('table_exists').wait(TableName=table_name)
 
-    def create_table(self, table_name, p_key, p_type, s_key, s_type):
+    def create_table_single(self, table_name, p_key, p_type):
+        print(f"Creating {table_name} table...")
+        table = self.__dynamodb.create_table(
+            TableName=table_name,
+            KeySchema=[
+                {
+                    'AttributeName': p_key,
+                    'KeyType': 'HASH'
+                }
+            ],
+            AttributeDefinitions=[
+                {
+                    'AttributeName': p_key,
+                    'AttributeType': p_type
+                }
+            ],
+            ProvisionedThroughput={
+                'ReadCapacityUnits': 5,
+                'WriteCapacityUnits': 5
+            }
+        )
+        # Wait until the table exists.
+        table.meta.client.get_waiter('table_exists').wait(TableName=table_name)
+
+    def create_table_double(self, table_name, p_key, p_type, s_key, s_type):
         print(f"Creating {table_name} table...")
         table = self.__dynamodb.create_table(
             TableName=table_name,

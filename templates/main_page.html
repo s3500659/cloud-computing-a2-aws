@@ -6,12 +6,35 @@
 <div class="content">
     <!-- User Area -->
     <div class="user_area">
-        <h2>User Area</h2>
+        <section class="section_content">
+            <h2>User Area</h2>
+            User Name: {{ user['user_name'] }}
+        </section>
     </div>
 
     <!-- Subscription Area -->
     <div class="subscription_area">
-        <h2>Subscription Area</h2>
+        <section class="section_content">
+            <h2>Subscription Area</h2>
+            <table class="table">
+                <tr>
+                    <th>Title</th>
+                    <th>Artist</th>
+                    <th>Year</th>
+                    <th>Image</th>
+                    <th>Remove</th>
+                </tr>
+                {% for item in subs %}
+                <tr>
+                    <td>{{item['title']}}</td>
+                    <td>{{item['artist']}}</td>
+                    <td>{{item['year']}}</td>
+                    <td>image</td>
+                    <td><a href="{{ url_for('remove_sub', title=item['title']) }}">Remove</a></td>
+                </tr>
+                {% endfor %}
+            </table>
+        </section>
     </div>
 
     <!-- Query Area -->
