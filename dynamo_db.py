@@ -15,6 +15,7 @@ class DynamoDbManager:
         # self.__client = boto3.client(
         #     'dynamodb', region_name='us-east-1', endpoint_url='http://localhost:8000')
 
+
     def delete_subscription(self, email, title):
         table = self.__dynamodb.Table(self.MUSIC_SUB_TABLE)
 

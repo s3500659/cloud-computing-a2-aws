@@ -6,40 +6,74 @@
 <div class="content">
     <!-- User Area -->
     <div class="user_area">
-        <section class="section_content">
-            <h2>User Area</h2>
-            User Name: {{ user['user_name'] }}
-        </section>
+
+        <h2>User Area</h2>
+        User Name: {{ user['user_name'] }}<br>
+        <a href="{{ url_for('logout') }}">Logout</a>
     </div>
 
     <!-- Subscription Area -->
     <div class="subscription_area">
-        <section class="section_content">
-            <h2>Subscription Area</h2>
-            <table class="table">
-                <tr>
-                    <th>Title</th>
-                    <th>Artist</th>
-                    <th>Year</th>
-                    <th>Image</th>
-                    <th>Remove</th>
-                </tr>
-                {% for item in subs %}
-                <tr>
-                    <td>{{item['title']}}</td>
-                    <td>{{item['artist']}}</td>
-                    <td>{{item['year']}}</td>
-                    <td>image</td>
-                    <td><a href="{{ url_for('remove_sub', title=item['title']) }}">Remove</a></td>
-                </tr>
-                {% endfor %}
-            </table>
-        </section>
-    </div>
+        <h2>Subscription Area</h2>
+        <table class="table">
+            <tr>
+                <th>Title</th>
+                <th>Artist</th>
+                <th>Year</th>
+                <th>Image</th>
+                <th>Remove</th>
+            </tr>
+            {% for item in subs %}
+            <tr>
+                <td>{{item['title']}}</td>
+                <td>{{item['artist']}}</td>
+                <td>{{item['year']}}</td>
+                <td><img src="https://s3500659-artist-images.s3.amazonaws.com/{{item['artist']}}.jpg"
+                        alt="{{item['artist']}}">
+                </td>
+                <td><a href="{{ url_for('remove_sub', title=item['title']) }}">Remove</a></td>
+            </tr>
+            {% endfor %}
+        </table>
 
+    </div>
     <!-- Query Area -->
     <div class="query_area">
         <h2>Query Area</h2>
+        <form name="query_form" action="{{ url_for('main_page')}}" method='POST'>
+            <input type="text" name="title" placeholder="title" value="">
+            <input type="text" name="artist" placeholder="artist" value="">
+            <input type="text" name="year" placeholder="year" value="">
+            <button type="submit">Query</button>
+        </form>
+        {% with messages = get_flashed_messages() %}
+        {% if messages %}
+        <div class=flashes>
+            {% for message in messages %}
+            <p>{{ message }}</p>
+            {% endfor %}
+        </div>
+        {% endif %}
+        {% endwith %}
+        <table class="table">
+            <tr>
+                <th>Title</th>
+                <th>Artist</th>
+                <th>Year</th>
+                <th>Image</th>
+                <th>Subscribe</th>
+            </tr>
+            {% for item in response %}
+            <tr>
+                <td>{{item['title']}}</td>
+                <td>{{item['artist']}}</td>
+                <td>{{item['year']}}</td>
+                <td><img src="https://s3500659-artist-images.s3.amazonaws.com/{{item['artist']}}.jpg" alt="{{item['artist']}}">
+                </td>
+                <td><a href="{{ url_for('subscribe', title=item['title'], artist=item['artist'], year=item['year']) }}">Subscribe</a></td>
+            </tr>
+            {% endfor %}
+        </table>
     </div>
 </div>
 {% endblock %}
