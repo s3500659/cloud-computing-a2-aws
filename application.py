@@ -2,10 +2,9 @@ from flask import Flask, render_template, request, redirect, session, flash, url
 from dynamo_db import DynamoDbManager
 from s3_manager import s3Manager
 import json
-from PIL import Image
 
-app = Flask(__name__)
-app.secret_key = 'my secret key'
+application = Flask(__name__)
+application.secret_key = 'my secret key'
 db_client = DynamoDbManager()
 s3_client = s3Manager()
 
@@ -37,7 +36,7 @@ def initialise_music_table():
         db_client.load_music_data('a2.json')
 
 
-@app.route("/<title>/<artist>/<year>/subscribe")
+@application.route("/<title>/<artist>/<year>/subscribe")
 def subscribe(title, artist, year):
     user = db_client.get_user(session['user_email'])
     song = db_client.query_music_item(artist, title, year)
@@ -46,13 +45,13 @@ def subscribe(title, artist, year):
     return redirect(url_for('main_page'))
 
 
-@app.route("/<title>/remove_sub")
+@application.route("/<title>/remove_sub")
 def remove_sub(title):
     db_client.delete_subscription(session['user_email'], title)
     return redirect(url_for('main_page'))
 
 
-@app.route("/main_page", methods=['GET', 'POST'])
+@application.route("/main_page", methods=['GET', 'POST'])
 def main_page():
     user = db_client.get_user(session['user_email'])
     subs = db_client.get_subscriptions(user['email'])
@@ -72,7 +71,7 @@ def main_page():
     return render_template('main_page.html', user=user, subs=subs)
 
 
-@app.route("/register", methods=['GET', 'POST'])
+@application.route("/register", methods=['GET', 'POST'])
 def register():
     if request.method == 'POST':
         email = request.form['email'].casefold()
@@ -90,7 +89,7 @@ def register():
     return render_template('register.html')
 
 
-@app.route("/logout")
+@application.route("/logout")
 def logout():
     session.pop('email', None)
     flash('You have been logged out!', 'info')
@@ -124,7 +123,7 @@ def initialise_login_table():
             "s35006599@student.rmit.edu.au", "Vinh Tran9", "901234")
 
 
-@app.route("/login", methods=['POST'])
+@application.route("/login", methods=['POST'])
 def login():
     email = request.form['email'].casefold()
     pw = request.form['pw']
@@ -139,7 +138,7 @@ def login():
         return redirect(url_for('main_page'))
 
 
-@app.route("/")
+@application.route("/")
 def main():
     return render_template('login.html')
 
@@ -149,4 +148,4 @@ if __name__ == "__main__":
     initialise_music_table()
     # initialise_artist_img_bucket('s3500659-artist-images')
 
-    app.run(host="0.0.0.0", port=8080, debug=True)
+    application.run(debug=True)
