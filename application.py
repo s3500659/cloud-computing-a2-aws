@@ -148,4 +148,4 @@ if __name__ == "__main__":
     initialise_music_table()
     # initialise_artist_img_bucket('s3500659-artist-images')
 
-    application.run(debug=True)
+    application.run(host="0.0.0.0", port=8080, debug=True)
