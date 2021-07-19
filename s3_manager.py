@@ -16,20 +16,18 @@ class s3Manager:
 
 
 
-    # def download_image(self, artist):
-    #     path = r'downloads'
-    #     key = artist + '.jpg'
-
-    #     Path(path).mkdir(exist_ok=True)
-
-    #     try:
-    #         self.__s3_resource.Bucket(self.ARTIST_IMAGE_BUCKET_NAME).download_file(
-    #             key, os.path.join(path, key))
-    #     except botocore.exceptions.ClientError as e:
-    #         if e.response['Error']['Code'] == "404":
-    #             return False
-
-    #     return True
+    def check_bucket_exists(self, bucket_name):
+        exists = True
+        try:
+            self.__s3_resource.meta.client.head_bucket(
+                Bucket=bucket_name)
+        except botocore.exceptions.ClientError as e:
+        # If a client error is thrown, then check that it was a 404 error.
+        # If it was a 404 error, then the bucket does not exist.
+            error_code = e.response['Error']['Code']
+            if error_code == '404':
+                exists = False
+        return exists
 
     def count_objects_in_bucket(self, bucket_name):
         bucket = self.__s3_resource.Bucket(bucket_name)
@@ -82,12 +80,13 @@ class s3Manager:
         try:
             if region is None:
                 self.__s3_resource.create_bucket(Bucket=bucket_name)
+                return True
             else:
                 location = {'LocationConstraint': region}
                 self.__s3_resource.create_bucket(Bucket=bucket_name,
                                                CreateBucketConfiguration=location)
+                return True
         except ClientError as e:
             logging.error(e)
             return False
 
-        return True

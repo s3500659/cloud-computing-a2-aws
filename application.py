@@ -23,8 +23,9 @@ def upload_artist_images(bucket_name):
 
 
 def initialise_artist_img_bucket(bucket_name):
-    s3_client.create_bucket(bucket_name)
-    upload_artist_images(bucket_name)
+    if s3_client.check_bucket_exists(bucket_name) == False:
+        s3_client.create_bucket(bucket_name)
+        upload_artist_images(bucket_name)
 
 
 def initialise_music_table():
@@ -83,16 +84,13 @@ def register():
             return redirect(url_for('register'))
 
         db_client.create_user(email, user_name, pw)
-        logout()
         return redirect('/')
-
     return render_template('register.html')
 
 
 @application.route("/logout")
 def logout():
     session.pop('email', None)
-    flash('You have been logged out!', 'info')
     return redirect(url_for('main'))
 
 
@@ -146,6 +144,6 @@ def main():
 if __name__ == "__main__":
     initialise_login_table()
     initialise_music_table()
-    # initialise_artist_img_bucket('s3500659-artist-images')
+    initialise_artist_img_bucket('s3500659-artist-images')
 
     application.run(host="0.0.0.0", port=8080, debug=True)

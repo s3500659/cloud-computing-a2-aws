@@ -17,19 +17,14 @@ class UnitTest(unittest.TestCase):
         self.invalid_pw = 'abc123'
 
 
+    def test_checkBucketExist_bucketNotExists(self):
+        bucket = "non_existing_bucket"
+        self.assertFalse(self.s3_client.check_bucket_exists(bucket))
 
+    def test_checkBucketExist_bucketExists(self):
+        bucket = "s3500659-artist-images"
+        self.assertTrue(self.s3_client.check_bucket_exists(bucket))
 
-
-    # def test_download_sub_images(self):
-    #     subs = self.db_client.get_subscriptions(self.valid_email)
-    #     self.assertTrue(subs)
-
-    #     for item in subs:
-    #         self.assertTrue(self.s3_client.download_image(item['artist']))
-
-    # def test_download_image(self):
-    #     self.assertTrue(self.s3_client.download_image("Arcade Fire"))
-    #     self.assertFalse(self.s3_client.download_image("not an image"))
 
     def test_create_subscriptions(self):
         user = self.db_client.get_user('vinh')
