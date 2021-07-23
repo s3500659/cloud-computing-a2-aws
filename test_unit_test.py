@@ -16,7 +16,6 @@ class UnitTest(unittest.TestCase):
         self.invalid_email = 'noone@student.rmit.edu.au'
         self.invalid_pw = 'abc123'
 
-
     def test_checkBucketExist_bucketNotExists(self):
         bucket = "non_existing_bucket"
         self.assertFalse(self.s3_client.check_bucket_exists(bucket))
@@ -24,7 +23,6 @@ class UnitTest(unittest.TestCase):
     def test_checkBucketExist_bucketExists(self):
         bucket = "s3500659-artist-images"
         self.assertTrue(self.s3_client.check_bucket_exists(bucket))
-
 
     def test_create_subscriptions(self):
         user = self.db_client.get_user('vinh')

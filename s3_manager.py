@@ -3,8 +3,6 @@ import boto3
 import botocore
 from botocore.exceptions import ClientError
 import requests
-import os
-from pathlib import Path
 
 
 class s3Manager:
@@ -14,16 +12,14 @@ class s3Manager:
         self.__s3_client = boto3.client('s3', region_name='us-east-1')
         self.ARTIST_IMAGE_BUCKET_NAME = 's3500659-artist-images'
 
-
-
     def check_bucket_exists(self, bucket_name):
         exists = True
         try:
             self.__s3_resource.meta.client.head_bucket(
                 Bucket=bucket_name)
         except botocore.exceptions.ClientError as e:
-        # If a client error is thrown, then check that it was a 404 error.
-        # If it was a 404 error, then the bucket does not exist.
+            # If a client error is thrown, then check that it was a 404 error.
+            # If it was a 404 error, then the bucket does not exist.
             error_code = e.response['Error']['Code']
             if error_code == '404':
                 exists = False
@@ -63,7 +59,6 @@ class s3Manager:
 
         self.__s3_resource.Bucket(bucket_name_to_upload_image_to).put_object(
             Key=s3_image_filename, Body=req_data)
-        
 
     def create_bucket(self, bucket_name, region=None):
         """Create an S3 bucket in a specified region
@@ -84,9 +79,8 @@ class s3Manager:
             else:
                 location = {'LocationConstraint': region}
                 self.__s3_resource.create_bucket(Bucket=bucket_name,
-                                               CreateBucketConfiguration=location)
+                                                 CreateBucketConfiguration=location)
                 return True
         except ClientError as e:
             logging.error(e)
             return False
-
