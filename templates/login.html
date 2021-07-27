@@ -5,7 +5,35 @@
 {% endblock %}
 
 {% block body %}
-<div class="login_page">
+<div class="container">
+    <form action="login" method="post">
+        <div class="form-group">
+            <label for="exampleInputEmail1">Email address</label>
+            <input type="email" name="email" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp"
+                placeholder="Enter email">
+            <small id="emailHelp" class="form-text text-muted">We'll never share your email with anyone else.</small>
+        </div>
+        <div class="form-group">
+            <label for="exampleInputPassword1">Password</label>
+            <input type="password" name="pw" class="form-control" id="exampleInputPassword1" placeholder="Password">
+        </div>
+        <button type="submit" class="btn btn-primary">Login</button>
+    </form>
+    <a href="{{ url_for('register') }}">Register</a>
+    {% with messages = get_flashed_messages() %}
+    {% if messages %}
+    <div class=flashes>
+        {% for message in messages %}
+        <p>{{ message }}</p>
+        {% endfor %}
+    </div>
+    {% endif %}
+    {% endwith %}
+</div>
+
+
+
+<!-- <div class="login_page">
     <h1>Enter your login details:</h1>
     <form action="login" method="post" class="login_form">
         <input type="text" name="email" placeholder="Email" required /><br>
@@ -22,5 +50,5 @@
     </div>
     {% endif %}
     {% endwith %}
-</div>
+</div> -->
 {% endblock %}

@@ -5,23 +5,26 @@
 {% endblock %}
 
 {% block body %}
-<div class="register_page">
-    <h1>Register new user</h1>
-    <form name="register_form" action="register" method="post" class="register_form">
-        <input type="text" name="email" placeholder="Email" required /><br>
-        <input type="text" name="user_name" placeholder="User name" required /><br>
-        <input type="password" name="pw" placeholder="Password" required /><br>
-        <button type="submit">Register</button>
+<div class="container">
+    <h1>Register</h1>
+    <form name="register_form" action="register" method="post">
+        <div class="form-group">
+            <input type="email" class="form-control" name="email" placeholder="Email" required /><br>
+            <input type="text" class="form-control" name="user_name" placeholder="User name" required /><br>
+            <input type="password" class="form-control" name="pw" placeholder="Password" required /><br>
+        </div>
+        <button type="submit" class="btn btn-primary">Register</button>
     </form>
     <a href="{{ url_for('main') }}">Go back</a>
+    {% with messages = get_flashed_messages() %}
+    {% if messages %}
+    <div class=flashes>
+        {% for message in messages %}
+        <p>{{ message }}</p>
+        {% endfor %}
+    </div>
+    {% endif %}
+    {% endwith %}
 </div>
-{% with messages = get_flashed_messages() %}
-{% if messages %}
-<div class=flashes>
-    {% for message in messages %}
-    <p>{{ message }}</p>
-    {% endfor %}
-</div>
-{% endif %}
-{% endwith %}
+
 {% endblock %}

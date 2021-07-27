@@ -27,6 +27,10 @@ def initialise_artist_img_bucket(bucket_name):
         s3_client.create_bucket(bucket_name)
         upload_artist_images(bucket_name)
 
+def initialise_subscription_table():
+    name = 'user_subscription'
+    if db_client.table_exist(name) == False:
+        db_client.create_table_double(name, 'email', 'S', 'title', 'S')
 
 def initialise_music_table():
     name = 'music'
@@ -98,7 +102,7 @@ def initialise_login_table():
     name = 'login'
     if db_client.table_exist(name) == False:
         db_client.create_login_table()
-        db_client.create_user("vinh", "Vinh Tran", "123")
+        db_client.create_user("vinh@gmail.com", "Vinh Tran", "123")
         db_client.create_user(
             "s35006590@student.rmit.edu.au", "Vinh Tran0", "012345")
         db_client.create_user(
@@ -121,29 +125,32 @@ def initialise_login_table():
             "s35006599@student.rmit.edu.au", "Vinh Tran9", "901234")
 
 
-@application.route("/login", methods=['POST'])
+@application.route("/login", methods=['GET', 'POST'])
 def login():
-    email = request.form['email'].casefold()
-    pw = request.form['pw']
+    
+    if request.method == 'POST':
+        email = request.form['email'].casefold()
+        pw = request.form['pw']
+        user = db_client.get_user(email)
 
-    user = db_client.get_user(email)
+        if user == None or user['password'] != pw:
+            flash('Email or password is invalid!', 'error')
+            return redirect(url_for('main'))
+        else:
+            session['user_email'] = email
+            return redirect(url_for('main_page'))
 
-    if user == None or user['password'] != pw:
-        flash('Email or password is invalid!', 'error')
-        return redirect(url_for('main'))
-    else:
-        session['user_email'] = email
-        return redirect(url_for('main_page'))
-
+    return render_template('login.html')
 
 @application.route("/")
 def main():
-    return render_template('login.html')
+    return redirect(url_for('login'))
 
 
 if __name__ == "__main__":
     initialise_login_table()
     initialise_music_table()
+    initialise_subscription_table()
     initialise_artist_img_bucket('s3500659-artist-images')
 
     application.run(host="0.0.0.0", port=8080, debug=True)

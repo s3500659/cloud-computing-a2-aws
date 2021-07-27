@@ -3,10 +3,9 @@
 {% endblock %}
 
 {% block body %}
-<div class="content">
+<div class="container">
     <!-- User Area -->
     <div class="user_area">
-
         <h2>User Area</h2>
         User Name: {{ user['user_name'] }}<br>
         <a href="{{ url_for('logout') }}">Logout</a>
@@ -16,13 +15,15 @@
     <div class="subscription_area">
         <h2>Subscription Area</h2>
         <table class="table">
-            <tr>
-                <th>Title</th>
-                <th>Artist</th>
-                <th>Year</th>
-                <th>Image</th>
-                <th>Remove</th>
-            </tr>
+            <thead class="thead-dark">
+                <tr>
+                    <th>Title</th>
+                    <th>Artist</th>
+                    <th>Year</th>
+                    <th>Image</th>
+                    <th>Remove</th>
+                </tr>
+            </thead>
             {% for item in subs %}
             <tr>
                 <td>{{item['title']}}</td>
@@ -31,20 +32,26 @@
                 <td><img src="https://s3500659-artist-images.s3.amazonaws.com/{{item['artist']}}.jpg"
                         alt="{{item['artist']}}">
                 </td>
-                <td><a href="{{ url_for('remove_sub', title=item['title']) }}">Remove</a></td>
+                <td><a class="btn btn-danger" href="{{ url_for('remove_sub', title=item['title']) }}">Remove</a></td>
             </tr>
             {% endfor %}
         </table>
 
     </div>
     <!-- Query Area -->
-    <div class="query_area">
+    <div>
         <h2>Query Area</h2>
         <form name="query_form" action="{{ url_for('main_page')}}" method='POST'>
-            <input type="text" name="title" placeholder="title" value="">
-            <input type="text" name="artist" placeholder="artist" value="">
-            <input type="text" name="year" placeholder="year" value="">
-            <button type="submit">Query</button>
+            <div class="form-group">
+                <input type="text" class="form-control" name="title" placeholder="Song title..." value="">
+            </div>
+            <div class="form-group">
+                <input type="text" class="form-control" name="artist" placeholder="Artist name..." value="">
+            </div>
+            <div class="form-group">
+                <input type="text" class="form-control" name="year" placeholder="Year published..." value="">
+            </div>
+            <button type="submit" class="btn btn-primary">Query</button>
         </form>
         {% with messages = get_flashed_messages() %}
         {% if messages %}
@@ -55,25 +62,35 @@
         </div>
         {% endif %}
         {% endwith %}
+
+        {% if response %}
+        <br>
         <table class="table">
-            <tr>
-                <th>Title</th>
-                <th>Artist</th>
-                <th>Year</th>
-                <th>Image</th>
-                <th>Subscribe</th>
-            </tr>
+            <thead class="thead-dark">
+                <tr>
+                    <th>Title</th>
+                    <th>Artist</th>
+                    <th>Year</th>
+                    <th>Image</th>
+                    <th>Subscribe</th>
+                </tr>
+            </thead>
             {% for item in response %}
             <tr>
                 <td>{{item['title']}}</td>
                 <td>{{item['artist']}}</td>
                 <td>{{item['year']}}</td>
-                <td><img src="https://s3500659-artist-images.s3.amazonaws.com/{{item['artist']}}.jpg" alt="{{item['artist']}}">
+                <td><img src="https://s3500659-artist-images.s3.amazonaws.com/{{item['artist']}}.jpg"
+                        alt="{{item['artist']}}">
                 </td>
-                <td><a href="{{ url_for('subscribe', title=item['title'], artist=item['artist'], year=item['year']) }}">Subscribe</a></td>
+                <td>
+                    <a class="btn btn-primary"
+                        href="{{ url_for('subscribe', title=item['title'], artist=item['artist'], year=item['year']) }}">Subscribe</a>
+                </td>
             </tr>
             {% endfor %}
         </table>
+        {% endif %}
     </div>
 </div>
 {% endblock %}
