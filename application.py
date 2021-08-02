@@ -27,10 +27,12 @@ def initialise_artist_img_bucket(bucket_name):
         s3_client.create_bucket(bucket_name)
         upload_artist_images(bucket_name)
 
+
 def initialise_subscription_table():
     name = 'user_subscription'
     if db_client.table_exist(name) == False:
         db_client.create_table_double(name, 'email', 'S', 'title', 'S')
+
 
 def initialise_music_table():
     name = 'music'
@@ -127,7 +129,7 @@ def initialise_login_table():
 
 @application.route("/login", methods=['GET', 'POST'])
 def login():
-    
+
     if request.method == 'POST':
         email = request.form['email'].casefold()
         pw = request.form['pw']
@@ -142,6 +144,7 @@ def login():
 
     return render_template('login.html')
 
+
 @application.route("/")
 def main():
     return redirect(url_for('login'))
@@ -153,4 +156,6 @@ if __name__ == "__main__":
     initialise_subscription_table()
     initialise_artist_img_bucket('s3500659-artist-images')
 
-    application.run(host="0.0.0.0", port=8080, debug=True)
+    from waitress import serve
+    serve(application, host="0.0.0.0", port=80)
+    # application.run(host="0.0.0.0", port=80, debug=True)

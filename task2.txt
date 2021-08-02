@@ -1,0 +1,44 @@
+﻿Motivation
+Very often my partner and i’m sure many others throw food in the bin due to it not being eaten or has expired. This causes a massive amount of waste collectively both in the product and cost. My aim with this app is to reduce the amount of food wasted and hopefully encourage anyone that uses the app to be more mindful of food waste.
+
+
+Objective
+The aim of this app is to reduce food waste. This will be achieved by allowing the user of the app to add ingredients to a list called a ‘pantry’. The app will then allow the user to search for recipes online using the ingredients in their pantry. The app will also allow the user to search for recipes by name. This will add more flexibility on how users can use the app. Users will also be able to save recipes that they like. This will allow them to refer back to the recipe in the future. To encourage users to use the app and add more excitement, the app will allow users to share their recipes with friends on either Instagram or facebook. They will be able to share recipes and perhaps post photos on those platforms to show off what they have cooked. 
+
+
+System Components
+The app will be built using Python and the Flask framework. 
+
+
+User login details will be saved to DynamoDB.
+
+
+Saved recipes will be uploaded to S3 as a json file for storage and analytics purposes.
+
+
+Kinesis firehose will be used to aggregate data and return data of the most viewed and saved recipes.
+
+
+The most viewed recipes will be shown to the user as a trending recipe.
+
+
+Users will send requests to the apis via aws api gateway which will then be routed to a lambda function for data retrieval and processing before being returned back to the user.
+
+
+The app will be built using Docker and hosted on ECS.
+
+
+The app will show the user how many ingredients they’re missing from a recipe and the search results will be optimised to show recipes with the least amount of missing ingredients first.
+
+
+An admin portal will be created as a separate app and hosted on EC2. The admin will be able to select recipes that will show as trending to the user. They will also be able to reset user passwords.
+
+
+
+
+AWS Services
+ECS, DynamoDB, S3, API Gateway, Lambda, Kinesis Firehose, CloudWatch.
+
+
+API
+Spoonacular, Instagram/Facebook
