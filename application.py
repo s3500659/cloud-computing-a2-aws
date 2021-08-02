@@ -2,6 +2,7 @@ from flask import Flask, render_template, request, redirect, session, flash, url
 from dynamo_db import DynamoDbManager
 from s3_manager import s3Manager
 import json
+from waitress import serve
 
 application = Flask(__name__)
 application.secret_key = 'my secret key'
@@ -156,6 +157,5 @@ if __name__ == "__main__":
     initialise_subscription_table()
     initialise_artist_img_bucket('s3500659-artist-images')
 
-    from waitress import serve
     serve(application, host="0.0.0.0", port=80)
     # application.run(host="0.0.0.0", port=80, debug=True)
